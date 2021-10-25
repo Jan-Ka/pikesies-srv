@@ -1,0 +1,5 @@
+.devcontainer
+// linux executable
+pikesies-srv
+.pikesies-srv.yaml
+.vscode
