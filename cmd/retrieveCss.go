@@ -3,13 +3,12 @@ package cmd
 import (
 	"fmt"
 	"net/http"
+	"sync"
 
-	"github.com/gorilla/mux"
-	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/Jan-Ka/pikesies-srv/handlers"
+	"github.com/Jan-Ka/pikesies-srv/server"
 )
 
 // retrieveCssCmd represents the retrieveCss command
@@ -26,7 +25,15 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		startRetrieveCssEndpoint()
+		port := fmt.Sprintf(":%s", viper.GetString("port"))
+
+		cmdCtx := cmd.Context()
+		ctxVal := cmdCtx.Value(CtxWaitGroupKey{}).(*sync.WaitGroup)
+
+		go server.GetServer(cmdCtx, ctxVal, port, "/retrieve-css", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprint(w, "Thanks for testing retrieve-css!")
+		})
 	},
 }
 
@@ -42,23 +49,4 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// retrieveCssCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
-
-func startRetrieveCssEndpoint() {
-	log.Info().Msg("retrieveCss called")
-
-	r := mux.NewRouter()
-	r.HandleFunc("/", handlers.HealthHandler)
-	r.HandleFunc("/retrieve-css", RetrieveCssHandler)
-	http.Handle("/", r)
-	port := fmt.Sprintf(":%s", viper.GetString("port"))
-
-	log.Info().Msgf("Listening on %s", port)
-
-	http.ListenAndServe(port, r)
-}
-
-func RetrieveCssHandler(rw http.ResponseWriter, r *http.Request) {
-	rw.WriteHeader(http.StatusOK)
-	fmt.Fprint(rw, "Thanks for testing retrieve-css!")
 }
