@@ -33,10 +33,10 @@ func GetServer(ctx context.Context, wg *sync.WaitGroup, addr string, pattern str
 		wg.Done()
 	}()
 
-	serverLog.Info().Msgf("handler is starting")
+	serverLog.Info().Msg("handler is starting")
 
 	if err := server.ListenAndServe(); err != http.ErrServerClosed {
 		serverLog.Error().Msgf("error starting up handler %s\n", err)
 	}
-	serverLog.Info().Msgf("handler is closing")
+	serverLog.Info().Msg("handler is closing")
 }
