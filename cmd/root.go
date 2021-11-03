@@ -4,6 +4,8 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"sync"
+	"syscall"
 
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -23,6 +25,14 @@ examples and usage of using your application. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		cmdCtx := cmd.Context()
+		ctxWaitGroup := cmdCtx.Value(CtxWaitGroupKey{}).(*sync.WaitGroup)
+
+		ctxWaitGroup.Done()
+		// send sigint to stop app
+		syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
