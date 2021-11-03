@@ -3,10 +3,17 @@ package cmd
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"path"
+	"path/filepath"
 	"sync"
 
+	secretmanager "cloud.google.com/go/secretmanager/apiv1"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"google.golang.org/api/option"
+	secretmanagerpb "google.golang.org/genproto/googleapis/cloud/secretmanager/v1"
 
 	"github.com/Jan-Ka/pikesies-srv/server"
 )
@@ -18,19 +25,44 @@ var retrieveCssCmd = &cobra.Command{
 		"retrieve-css",
 	},
 	Short: "Provides a retrieve-css endpoint",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		runLog := log.With().Str("cmd", "retrieveCss").Logger()
+
 		port := fmt.Sprintf(":%s", viper.GetString("port"))
 
 		cmdCtx := cmd.Context()
 		ctxWaitGroup := cmdCtx.Value(CtxWaitGroupKey{}).(*sync.WaitGroup)
 
-		go server.GetServer(cmdCtx, ctxWaitGroup, port, "/retrieve-css", func(w http.ResponseWriter, r *http.Request) {
+		saConfigPath := viper.GetString("gcp_service_account_path")
+		saPath := saConfigPath
+
+		if !filepath.IsAbs(saConfigPath) {
+			basePath, _ := os.Getwd()
+
+			saPath = path.Join(basePath, saConfigPath)
+		}
+
+		runLog.Debug().Msgf("Reading GCP service account from %s", saPath)
+
+		client, err := secretmanager.NewClient(cmdCtx, option.WithCredentialsFile(saPath))
+		if err != nil {
+			runLog.Error().Msgf("Failed to create secret manager due to %s\n", err)
+			return
+		}
+
+		req := &secretmanagerpb.AccessSecretVersionRequest{
+			Name: viper.GetString("wa_app_key_secret_key"),
+		}
+
+		result, err := client.AccessSecretVersion(cmdCtx, req)
+		if err != nil {
+			runLog.Error().Msgf("Failed to access secret version due to %s\n", err)
+			return
+		}
+
+		runLog.Debug().Msgf("Got Secret with length of %v\n", len(string(result.Payload.Data)))
+
+		go server.RunServer(cmdCtx, ctxWaitGroup, port, "/retrieve-css", func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprint(w, "Thanks for testing retrieve-css!")
 		})

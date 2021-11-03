@@ -9,7 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func GetServer(ctx context.Context, wg *sync.WaitGroup, addr string, pattern string, handler func(w http.ResponseWriter, r *http.Request)) {
+func RunServer(ctx context.Context, wg *sync.WaitGroup, addr string, pattern string, handler func(w http.ResponseWriter, r *http.Request)) {
 	serverLog := log.With().Str("addr", addr).Str("pattern", pattern).Logger()
 
 	mux := http.NewServeMux()
@@ -38,5 +38,6 @@ func GetServer(ctx context.Context, wg *sync.WaitGroup, addr string, pattern str
 	if err := server.ListenAndServe(); err != http.ErrServerClosed {
 		serverLog.Error().Msgf("error starting up handler %s\n", err)
 	}
+
 	serverLog.Info().Msg("handler is closing")
 }
