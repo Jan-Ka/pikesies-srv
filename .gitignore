@@ -3,3 +3,4 @@
 pikesies-srv
 .pikesies-srv.yaml
 .vscode
+*.service-account.json
