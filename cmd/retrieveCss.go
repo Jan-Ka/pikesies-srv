@@ -28,9 +28,9 @@ to quickly create a Cobra application.`,
 		port := fmt.Sprintf(":%s", viper.GetString("port"))
 
 		cmdCtx := cmd.Context()
-		ctxVal := cmdCtx.Value(CtxWaitGroupKey{}).(*sync.WaitGroup)
+		ctxWaitGroup := cmdCtx.Value(CtxWaitGroupKey{}).(*sync.WaitGroup)
 
-		go server.GetServer(cmdCtx, ctxVal, port, "/retrieve-css", func(w http.ResponseWriter, r *http.Request) {
+		go server.GetServer(cmdCtx, ctxWaitGroup, port, "/retrieve-css", func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprint(w, "Thanks for testing retrieve-css!")
 		})
