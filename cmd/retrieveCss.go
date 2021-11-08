@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"net/http"
 	"sync"
 
 	"github.com/rs/zerolog/log"
@@ -10,6 +9,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/Jan-Ka/pikesies-srv/gcp"
+	"github.com/Jan-Ka/pikesies-srv/handlers"
 	"github.com/Jan-Ka/pikesies-srv/server"
 )
 
@@ -39,10 +39,7 @@ var retrieveCssCmd = &cobra.Command{
 
 		runLog.Debug().Msgf("Got Secret with length of %v\n", len(waAppKey))
 
-		go server.RunServer(cmdCtx, ctxWaitGroup, port, "/retrieve-css", func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-			fmt.Fprint(w, "Thanks for testing retrieve-css!")
-		})
+		go server.RunServer(cmdCtx, ctxWaitGroup, port, "/retrieve-css", handlers.RetrieveCSSHandler)
 	},
 }
 
