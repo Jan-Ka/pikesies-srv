@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sync"
@@ -40,6 +41,7 @@ var rootCmd = &cobra.Command{
 		// }
 
 		r := mux.NewRouter()
+		r.Handle("/", http.RedirectHandler("/health", http.StatusMovedPermanently))
 		r.HandleFunc("/health", handlers.HealthHandler)
 		r.HandleFunc("/retrieve-css", handlers.RetrieveCSSHandler)
 
