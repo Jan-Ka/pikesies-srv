@@ -6,10 +6,10 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
-	"syscall"
 
 	"github.com/Jan-Ka/pikesies-srv/handlers"
 	"github.com/Jan-Ka/pikesies-srv/server"
+	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 
@@ -39,11 +39,15 @@ var rootCmd = &cobra.Command{
 		// 	return
 		// }
 
-		go server.RunServer(cmdCtx, ctxWaitGroup, port, "/retrieve-css", handlers.RetrieveCSSHandler)
+		r := mux.NewRouter()
+		r.HandleFunc("/health", handlers.HealthHandler)
+		r.HandleFunc("/retrieve-css", handlers.RetrieveCSSHandler)
 
-		ctxWaitGroup.Done()
-		// send sigint to stop app
-		syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+		go server.RunServer(cmdCtx, ctxWaitGroup, port, r)
+
+		// ctxWaitGroup.Done()
+		// // send sigint to stop app
+		// syscall.Kill(syscall.Getpid(), syscall.SIGINT)
 	},
 }
 

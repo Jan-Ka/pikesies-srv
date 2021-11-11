@@ -39,7 +39,7 @@ var retrieveCssCmd = &cobra.Command{
 
 		runLog.Debug().Msgf("Got Secret with length of %v\n", len(waAppKey))
 
-		go server.RunServer(cmdCtx, ctxWaitGroup, port, "/retrieve-css", handlers.RetrieveCSSHandler)
+		go server.RunSingleHandlerServer(cmdCtx, ctxWaitGroup, port, "/retrieve-css", handlers.RetrieveCSSHandler)
 	},
 }
 
