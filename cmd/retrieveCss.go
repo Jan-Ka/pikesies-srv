@@ -19,7 +19,7 @@ var retrieveCssCmd = &cobra.Command{
 	Aliases: []string{
 		"retrieve-css",
 	},
-	Short: "Provides a retrieve-css endpoint",
+	Short: "Provides only a retrieve-css endpoint",
 	Run: func(cmd *cobra.Command, args []string) {
 		runLog := log.With().Str("package", "cmd").Str("cmd", "retrieveCss").Logger()
 
