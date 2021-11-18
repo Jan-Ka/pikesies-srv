@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/Jan-Ka/pikesies-srv/config"
 	"github.com/Jan-Ka/pikesies-srv/handlers"
 	"github.com/Jan-Ka/pikesies-srv/server"
 	"github.com/gorilla/mux"
@@ -29,7 +30,9 @@ var rootCmd = &cobra.Command{
 
 		// runLog := log.With().Str("package", "cmd").Str("cmd", "root").Logger()
 
-		port := fmt.Sprintf(":%s", viper.GetString("port"))
+		cfgMgr := config.GetConfigManager()
+
+		port := fmt.Sprintf(":%s", cfgMgr.Config.Port)
 
 		// sa := gcp.GetSecretManager()
 

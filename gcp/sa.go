@@ -12,8 +12,9 @@ import (
 	secretmanagerpb "google.golang.org/genproto/googleapis/cloud/secretmanager/v1"
 
 	"github.com/rs/zerolog/log"
-	"github.com/spf13/viper"
 	"google.golang.org/api/option"
+
+	"github.com/Jan-Ka/pikesies-srv/config"
 )
 
 var lock = &sync.Mutex{}
@@ -44,7 +45,9 @@ func (sa *secretManager) GetWaAppKey() (string, error) {
 
 		fnLog := log.With().Str("package", "gcp").Logger()
 
-		saConfigPath := viper.GetString("gcp_service_account_path")
+		cfgMgr := config.GetConfigManager()
+
+		saConfigPath := cfgMgr.Config.GCPServiceAccountPath
 		saPath := saConfigPath
 
 		if !filepath.IsAbs(saConfigPath) {
@@ -61,7 +64,7 @@ func (sa *secretManager) GetWaAppKey() (string, error) {
 		}
 
 		req := &secretmanagerpb.AccessSecretVersionRequest{
-			Name: viper.GetString("wa_app_key_secret_key"),
+			Name: cfgMgr.Config.WAAppKeySecretKey,
 		}
 
 		result, err := client.AccessSecretVersion(fnContext, req)
