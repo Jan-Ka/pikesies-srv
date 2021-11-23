@@ -6,7 +6,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Jan-Ka/pikesies-srv/config"
 	"github.com/Jan-Ka/pikesies-srv/handlers"
+	gHandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
 )
@@ -20,9 +22,17 @@ func RunSingleHandlerServer(ctx context.Context, wg *sync.WaitGroup, addr string
 
 func RunServer(ctx context.Context, wg *sync.WaitGroup, addr string, router *mux.Router) {
 	serverLog := log.With().Str("addr", addr).Logger()
+	cm := config.GetConfigManager()
+
+	router.Use(gHandlers.RecoveryHandler())
 
 	server := &http.Server{
-		Addr:    addr,
+		Addr: addr,
+
+		WriteTimeout: cm.Config.WriteTimeout,
+		ReadTimeout:  cm.Config.ReadTimeout,
+		IdleTimeout:  cm.Config.IdleTimeout,
+
 		Handler: router,
 	}
 

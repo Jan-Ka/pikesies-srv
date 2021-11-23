@@ -4,13 +4,17 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	Port string `mapstructure:"port"`
+	Port         string        `mapstructure:"port"`
+	WriteTimeout time.Duration `mapstructure:"write_timeout"`
+	ReadTimeout  time.Duration `mapstructure:"read_timeout"`
+	IdleTimeout  time.Duration `mapstructure:"idle_timeout"`
 
 	GCPServiceAccountPath string `mapstructure:"gcp_service_account_path"`
 
@@ -62,7 +66,10 @@ func GetConfigManager() *configManager {
 		configManagerInstance = &configManager{}
 
 		cfg := &Config{
-			Port: "8080",
+			Port:         "8080",
+			WriteTimeout: 15 * time.Second,
+			ReadTimeout:  15 * time.Second,
+			IdleTimeout:  60 * time.Second,
 		}
 
 		err = viper.ReadInConfig()
